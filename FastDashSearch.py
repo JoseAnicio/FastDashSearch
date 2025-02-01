@@ -20,8 +20,8 @@ def copiar_celula(event, tree=None):
             root.clipboard_clear()  # Limpa a área de transferência
             root.clipboard_append(valor_copiado)  # Copia o valor
             root.update()  # Atualiza a área de transferência
-            SearchResultBar.configure(text="Valor copiado!", text_color="#272343", font=("Gill Sans", 14))
-            root.after(1500, limpar_search_result)
+            SearchResultBar.configure(text="Valor copiado!", text_color="#fffffe", font=("Gill Sans", 14), fg_color="#272343")
+            root.after(1000, limpar_search_result)
 
 def limpar_search_result():
     SearchResultBar.configure(text="", text_color="white", fg_color="#fffffe")
@@ -139,7 +139,7 @@ def pesquisarAplicativo():
 
 
         else:
-            SearchResultBar.configure(text="Nenhum resultado encontrado.", text_color="red")
+            SearchResultBar.configure(text="Nenhum resultado encontrado.", text_color="#272343")
 
     except Exception as e:
         SearchResultBar.configure(text=f"Erro: {str(e)}", text_color="#272343", font=("Gill Sans", 14))
@@ -197,18 +197,19 @@ def pesquisarWorkspace():
             SearchResultBar.configure(text="Nenhum resultado encontrado.", text_color="#272343", font=("Gill Sans", 14))
 
     except Exception as e:
-     SearchResultBar.configure(text=f"Erro: {str(e)}", text_color="red")
+     SearchResultBar.configure(text=f"Erro: {str(e)}", text_color="#272343")
     
     root.mainloop()
 
 def resultado_pesquisa(x, resultado):
     if x:
-        SearchResultBar.configure(text=f"Resultado encontrado: {', '.join(map(str, resultado))}", text_color="green")
+        SearchResultBar.configure(text=f"Resultado encontrado: {', '.join(map(str, resultado))}", text_color="#272343")
     else:
-        SearchResultBar.configure(text="Resultado não encontrado", text_color="red")
+        SearchResultBar.configure(text="Resultado não encontrado", text_color="#272343")
 
 # Janela principal
 def update_search(func):
+    
     global x
     x = func
     func()
@@ -224,32 +225,41 @@ top_bar = CTkFrame(root, fg_color="#272343", corner_radius=0)
 top_bar.place(relx=0.0, rely=0.0, relwidth=1, relheight=0.110)
 
 # Contêiner para os botões principais
-button_container = CTkFrame(root, fg_color="#272343")
+button_container = CTkFrame(root, fg_color="#272343", corner_radius=0)
 button_container.place(relx=0.0, rely=0.0, relwidth=1, relheight=0.1)
 
+x = pesquisarAplicativo
 
 # Botões principais
 button1 = CTkButton(button_container, text="DASHS\nINDIVIDUAIS", fg_color="#ffd803", hover_color="#d18d26", text_color="#001e1d", command=lambda: update_search(pesquisarIndividual), font= ('Gill Sans', 13, 'bold'))
-button1.place(relx=0.004, rely=0.1, relwidth=0.14, relheight=1)
+button1.place(relx=0.015, rely=0.1, relwidth=0.133, relheight=1)
 
 button2 = CTkButton(button_container, text="WORKSPACE", fg_color="#ffd803", hover_color="#d18d26", text_color="#001e1d",  command=lambda: update_search(pesquisarWorkspace), font= ('Gill Sans', 13, 'bold'))
-button2.place(relx=0.145, rely=0.1, relwidth=0.14, relheight=1)
+button2.place(relx=0.159, rely=0.1, relwidth=0.133, relheight=1)
 
 button3 = CTkButton(button_container, text="APLICATIVO", fg_color="#ffd803", hover_color="#d18d26", text_color="#001e1d",command=lambda: update_search(pesquisarAplicativo), font= ('Gill Sans', 13, 'bold'))
-button3.place(relx=0.287, rely=0.1, relwidth=0.14, relheight=1)
+button3.place(relx=0.303, rely=0.1, relwidth=0.133, relheight=1)
 
 # Barra de pesquisa
-SearchString = CTkEntry(root, placeholder_text="Pesquisar...", width=250, height=40, fg_color="white", text_color="black")
+SearchString = CTkEntry(root, placeholder_text="Pesquisar...", width=250, height=40, fg_color="#fffffe", text_color="black", border_color="#272343", corner_radius=0)
 SearchString.place(relx=0.64, rely=0.01)
 
 # Botão de pesquisa com ícone
-lupaimage = CTkImage(light_image=Image.open(guardalupa), size=(30, 30))
-SearchButton = CTkButton(root, text="", image=lupaimage, width=40, height=40, fg_color="#ffd803", hover_color="#ffd803", command=pesquisarIndividual, border_color="#212671", font=("Gill Sans", 14))
+lupaimage = CTkImage(light_image=Image.open(guardalupa), size=(20, 20))
+SearchButton = CTkButton(root, text="", 
+                         image=lupaimage, 
+                         width=40, height=40, 
+                         fg_color="#ffd803", 
+                         hover_color="#ffd803", 
+                         command=lambda: update_search(x), 
+                         border_color="#212671", 
+                         font=("Gill Sans", 14), 
+                         corner_radius=0)
 SearchButton.place(relx=0.94, rely=0.01)
 
 # Barra de resultados
-SearchResultBar = CTkLabel(root, text="", text_color="white", font=("Gill Sans", 14), fg_color="#fffffe")
-SearchResultBar.place(relx=0.05, rely=0.15)
+SearchResultBar = CTkLabel(root, text="", text_color="white", font=("Gill Sans", 14), fg_color="#fffffe", corner_radius=0)
+SearchResultBar.place(relx=0.05, rely=0.13)
 
 # Frame para exibição da tabela
 tree_frame = CTkFrame(root, fg_color="#fffffe")
