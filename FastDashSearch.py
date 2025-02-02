@@ -1,11 +1,14 @@
 from guardacaminho import guardacaminho, guardalupa
 import pandas as pd
 from customtkinter import CTk, CTkFrame, CTkLabel, CTkButton, CTkEntry, CTkImage, CTkScrollableFrame
+import tkinter as tk
 from tkinter import ttk
 from PIL import Image
 
 file = pd.read_csv(guardacaminho, delimiter=',', encoding="utf8")
 coluna_tipodelink = file.columns[2]
+coluna_clientes = file.iloc[:,0].unique()
+coluna_clientes = coluna_clientes.tolist()
 
 def copiar_celula(event, tree=None):
     selected_item = tree.selection()  # Obtém a linha selecionada
@@ -37,7 +40,9 @@ def pesquisarIndividual():
     try:
         search_query = SearchString.get().lower()
 
+        print(filtro_cliente)
         file_filtred = file[file[coluna_tipodelink] == "Individual"]
+        file_filtred = file_filtred[file_filtred[0] == filtro_cliente]
 
         if not search_query:
             SearchResultBar.configure(text="Nenhum resultado encontrado.", text_color="#272343", anchor="center", font=("Gill Sans", 14))
@@ -261,6 +266,13 @@ SearchButton.place(relx=0.94, rely=0.01)
 SearchResultBar = CTkLabel(root, text="", text_color="white", font=("Gill Sans", 14), fg_color="#fffffe", corner_radius=0)
 SearchResultBar.place(relx=0.05, rely=0.13)
 
+current_var = tk.StringVar()
+Filtro_frame = ttk.Combobox(root, textvariable=current_var)
+Filtro_frame['values'] = coluna_clientes
+Filtro_frame.pack()
+filtro_cliente = Filtro_frame.get()
+
+
 # Frame para exibição da tabela
 tree_frame = CTkFrame(root, fg_color="#fffffe")
 # Configuração Global de Estilo para a Treeview
@@ -269,7 +281,7 @@ style.theme_use("clam")
 style.configure("Treeview",
                 background="#fffffe",
                 foreground="#2d334a",
-                rowheight=25, 
+                rowheight=25,
                 fieldbackground="#fffffe", 
                 font=("Arial", 12))
 style.configure("Treeview.Heading", background="#272343", foreground="white", font=('Gill Sans', 12, "bold"), fg_color="#fffffe")
