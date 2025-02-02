@@ -30,19 +30,14 @@ def limpar_search_result():
     SearchResultBar.configure(text="", text_color="white", fg_color="#fffffe")
 
 
-
-def search_customer():
-    # Função para busca de clientes (a ser implementada)
-    pass
-
-
 def pesquisarIndividual():
     try:
         search_query = SearchString.get().lower()
 
-        print(filtro_cliente)
         file_filtred = file[file[coluna_tipodelink] == "Individual"]
-        file_filtred = file_filtred[file_filtred[0] == filtro_cliente]
+
+        if filtro_cliente:
+            file_filtred = file_filtred[file_filtred.iloc[:, 0] == filtro_cliente]
 
         if not search_query:
             SearchResultBar.configure(text="Nenhum resultado encontrado.", text_color="#272343", anchor="center", font=("Gill Sans", 14))
@@ -99,6 +94,9 @@ def pesquisarAplicativo():
         search_query = SearchString.get().lower()
 
         file_filtred = file[file[coluna_tipodelink]=="Aplicativo"]
+
+        if filtro_cliente:
+            file_filtred = file_filtred[file_filtred.iloc[:, 0] == filtro_cliente]
 
         if not search_query:
             SearchResultBar.configure(text="Nenhum resultado encontrado.", text_color="#272343", anchor="center", font=("Gill Sans", 14))
@@ -157,6 +155,9 @@ def pesquisarWorkspace():
 
         file_filtred = file[file[coluna_tipodelink]=="Workspace"]
 
+        if filtro_cliente:
+            file_filtred = file_filtred[file_filtred.iloc[:, 0] == filtro_cliente]
+
         if not search_query:
             SearchResultBar.configure(text="Nenhum resultado encontrado.", text_color="#272343", anchor="center", font=("Gill Sans", 14))
             return  # Para evitar execução desnecessária
@@ -212,13 +213,13 @@ def resultado_pesquisa(x, resultado):
     else:
         SearchResultBar.configure(text="Resultado não encontrado", text_color="#272343")
 
-# Janela principal
+#Faz a filtragem do tipo de ambiente
 def update_search(func):
-    
     global x
     x = func
     func()
 
+# Janela principal
 root = CTk()
 root.title("Fast Dash Search")
 root.geometry("854x480")
@@ -246,8 +247,24 @@ button3 = CTkButton(button_container, text="APLICATIVO", fg_color="#ffd803", hov
 button3.place(relx=0.303, rely=0.1, relwidth=0.133, relheight=1)
 
 # Barra de pesquisa
-SearchString = CTkEntry(root, placeholder_text="Pesquisar...", width=250, height=40, fg_color="#fffffe", text_color="black", border_color="#272343", corner_radius=0)
-SearchString.place(relx=0.64, rely=0.01)
+SearchString = CTkEntry(root, placeholder_text="Pesquisar...", 
+                        width=200, 
+                        height=44, 
+                        fg_color="#fffffe", 
+                        text_color="black", 
+                        border_color="#272343", 
+                        corner_radius=0)
+SearchString.place(relx=0.70, rely=0.007)
+
+def atualizar_filtro(event):
+    global filtro_cliente
+
+    filtro_cliente = filtro_frame.get()
+
+def limpar_filtro():
+    filtro_frame.set("")  # Define um valor vazio no Combobox
+    global filtro_cliente
+    filtro_cliente = None  # Remove o filtro aplicado
 
 # Botão de pesquisa com ícone
 lupaimage = CTkImage(light_image=Image.open(guardalupa), size=(20, 20))
@@ -266,12 +283,25 @@ SearchButton.place(relx=0.94, rely=0.01)
 SearchResultBar = CTkLabel(root, text="", text_color="white", font=("Gill Sans", 14), fg_color="#fffffe", corner_radius=0)
 SearchResultBar.place(relx=0.05, rely=0.13)
 
-current_var = tk.StringVar()
-Filtro_frame = ttk.Combobox(root, textvariable=current_var)
-Filtro_frame['values'] = coluna_clientes
-Filtro_frame.pack()
-filtro_cliente = Filtro_frame.get()
+filtro_frame = ttk.Combobox(root, background="#fffffe", foreground="#2d334a", font=("Gill Sans", 10), width=12, height=40)
+filtro_frame['values'] = coluna_clientes
+filtro_cliente=filtro_frame.set("")
+filtro_frame.place(relx=0.5, rely=0.03)
+filtro_frame.bind("<<ComboboxSelected>>", atualizar_filtro)
 
+limpar_filtro_frame = CTkButton(root, text="LIMPAR\nCLIENTE", 
+                                command=limpar_filtro,  
+                                fg_color="#332c61", 
+                                hover_color="#1e1a3d", 
+                                text_color="white", 
+                                font= ('Gill Sans', 10, 'bold'),
+                                width=40,
+                                height=40,
+                                border_width=1,
+                                border_color="white",
+                                corner_radius=0)
+
+limpar_filtro_frame.place(relx=0.635, rely=0.01)
 
 # Frame para exibição da tabela
 tree_frame = CTkFrame(root, fg_color="#fffffe")
@@ -287,7 +317,6 @@ style.configure("Treeview",
 style.configure("Treeview.Heading", background="#272343", foreground="white", font=('Gill Sans', 12, "bold"), fg_color="#fffffe")
 style.map("Treeview", background=[("selected", "#1f6aa5")])
 tree_frame.place(relx=0.05, rely=0.20, relwidth=0.9, relheight=0.7)
-
 
 # Executa a interface
 root.mainloop()
