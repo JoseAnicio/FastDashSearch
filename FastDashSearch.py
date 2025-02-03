@@ -6,6 +6,7 @@ from tkinter import ttk
 from PIL import Image
 
 file = pd.read_csv(guardacaminho, delimiter=',', encoding="utf8")
+file = file.sort_values(by=['Cliente'])
 coluna_tipodelink = file.columns[2]
 coluna_clientes = file.iloc[:,0].unique()
 coluna_clientes = coluna_clientes.tolist()
@@ -38,10 +39,6 @@ def pesquisarIndividual():
 
         if filtro_cliente:
             file_filtred = file_filtred[file_filtred.iloc[:, 0] == filtro_cliente]
-
-        if not search_query:
-            SearchResultBar.configure(text="Nenhum resultado encontrado.", text_color="#272343", anchor="center", font=("Gill Sans", 14))
-            return  # Para evitar execução desnecessária
 
         resultado = file_filtred[file_filtred.apply(lambda row: row.astype(str).str.lower().str.contains(search_query).any(), axis=1)]
 
@@ -98,10 +95,6 @@ def pesquisarAplicativo():
         if filtro_cliente:
             file_filtred = file_filtred[file_filtred.iloc[:, 0] == filtro_cliente]
 
-        if not search_query:
-            SearchResultBar.configure(text="Nenhum resultado encontrado.", text_color="#272343", anchor="center", font=("Gill Sans", 14))
-            return  # Para evitar execução desnecessária
-
         resultado = file_filtred[file_filtred.apply(lambda row: row.astype(str).str.lower().str.contains(search_query).any(), axis=1)]
 
         # Limpa os widgets dentro do tree_frame
@@ -157,10 +150,6 @@ def pesquisarWorkspace():
 
         if filtro_cliente:
             file_filtred = file_filtred[file_filtred.iloc[:, 0] == filtro_cliente]
-
-        if not search_query:
-            SearchResultBar.configure(text="Nenhum resultado encontrado.", text_color="#272343", anchor="center", font=("Gill Sans", 14))
-            return  # Para evitar execução desnecessária
 
         resultado = file_filtred[file_filtred.apply(lambda row: row.astype(str).str.lower().str.contains(search_query).any(), axis=1)]
 
@@ -219,6 +208,19 @@ def update_search(func):
     x = func
     func()
 
+
+def atualizar_filtro(event):
+    global filtro_cliente
+
+    filtro_cliente = filtro_frame.get()
+
+def limpar_filtro():
+    filtro_frame.set("")  # Define um valor vazio no Combobox
+    global filtro_cliente
+    filtro_cliente = None  # Remove o filtro aplicado
+    update_search(x)
+    
+
 # Janela principal
 root = CTk()
 root.title("Fast Dash Search")
@@ -255,16 +257,8 @@ SearchString = CTkEntry(root, placeholder_text="Pesquisar...",
                         border_color="#272343", 
                         corner_radius=0)
 SearchString.place(relx=0.70, rely=0.007)
+SearchString.bind('<Return>', lambda event: update_search(x))
 
-def atualizar_filtro(event):
-    global filtro_cliente
-
-    filtro_cliente = filtro_frame.get()
-
-def limpar_filtro():
-    filtro_frame.set("")  # Define um valor vazio no Combobox
-    global filtro_cliente
-    filtro_cliente = None  # Remove o filtro aplicado
 
 # Botão de pesquisa com ícone
 lupaimage = CTkImage(light_image=Image.open(guardalupa), size=(20, 20))
@@ -290,7 +284,7 @@ filtro_frame.place(relx=0.5, rely=0.03)
 filtro_frame.bind("<<ComboboxSelected>>", atualizar_filtro)
 
 limpar_filtro_frame = CTkButton(root, text="LIMPAR\nCLIENTE", 
-                                command=limpar_filtro,  
+                                command=limpar_filtro,
                                 fg_color="#332c61", 
                                 hover_color="#1e1a3d", 
                                 text_color="white", 
@@ -319,4 +313,4 @@ style.map("Treeview", background=[("selected", "#1f6aa5")])
 tree_frame.place(relx=0.05, rely=0.20, relwidth=0.9, relheight=0.7)
 
 # Executa a interface
-root.mainloop()
+root.mainloop(update_search(x))
